@@ -64,8 +64,8 @@ function getExpectedAdEntry(mockData) {
     for(var i = 0; i < mockData.length; i++) {
         expectedAdEntry[i] = {};
 
-        expectedAdEntry[i].price = mockData[i].price;
-        expectedAdEntry[i].dealId = mockData[i].dealid;
+        expectedAdEntry[i].price = mockData[i].win_bid;
+        expectedAdEntry[i].dealId = mockData[i].deal_id;
     }
 
     return expectedAdEntry;
@@ -113,7 +113,7 @@ describe('parseResponse', function () {
 
             /* Get mock response data from our responseData file */
             responseData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/mockResponseData.json')));
-            mockData = responseData.bid;
+            mockData = responseData.bids;
         });
 
         afterEach(function () {
@@ -125,6 +125,7 @@ describe('parseResponse', function () {
 
             /* IF SRA, parse all parcels at once */
             if (partnerProfile.architecture) partnerModule.parseResponse(1, mockData, returnParcels);
+
 
             for (var i = 0; i < returnParcels.length; i++) {
 
@@ -266,7 +267,6 @@ describe('parseResponse', function () {
                         }
                     }
                 }, returnParcels[i]);
-
                 expect(result.valid, result.format()).to.be.true;
             }
         });
@@ -446,7 +446,6 @@ describe('parseResponse', function () {
     });
 
     describe('should correctly parse dealid when no price was sent back: ', function () {
-
         beforeEach(function () {
             /* spy on RenderService.registerAd function, so that we can test it is called */
             registerAd = sinon.spy(libraryStubData["space-camp.js"].services.RenderService, 'registerAd');
