@@ -1,3 +1,4 @@
+/* globals require, module */
 /**
  * @author:    Partner
  * @license:   UNLICENSED
@@ -72,6 +73,80 @@ function AdformHtb(configs) {
 
     /* Utilities
      * ---------------------------------- */
+    function base64(_string) {
+        var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_='.split('');
+        return encode64(_string);
+
+        function encode64(input) {
+            var out = [];
+            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+            var i = 0;
+
+            input = utf8_encode(input);
+
+            while (i < input.length) {
+
+                chr1 = input.charCodeAt(i++);
+                chr2 = input.charCodeAt(i++);
+                chr3 = input.charCodeAt(i++);
+
+                enc1 = chr1 >> 2;
+                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                enc4 = chr3 & 63;
+
+                if (isNaN(chr2)) {
+                    enc3 = enc4 = 64;
+                } else if (isNaN(chr3)) {
+                    enc4 = 64;
+                }
+                out.push(_keyStr[enc1], _keyStr[enc2]);
+                if (enc3 != 64)
+                    out.push(_keyStr[enc3]);
+                if (enc4 != 64)
+                    out.push(_keyStr[enc4]);
+            }
+
+            return out.join('');
+        }
+
+        function utf8_encode(string) {
+            string = string.replace(/\r\n/g, "\n");
+            var utftext = "";
+
+            for (var n = 0; n < string.length; n++) {
+
+                var c = string.charCodeAt(n);
+
+                if (c < 128) {
+                    utftext += String.fromCharCode(c);
+                } else if ((c > 127) && (c < 2048)) {
+                    utftext += String.fromCharCode((c >> 6) | 192);
+                    utftext += String.fromCharCode((c & 63) | 128);
+                } else {
+                    utftext += String.fromCharCode((c >> 12) | 224);
+                    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                    utftext += String.fromCharCode((c & 63) | 128);
+                }
+            }
+
+            return utftext;
+        }
+    }
+
+    function getRequestItem(xSlot) {
+        var key;
+        var url = [];
+        var skip = { sizes: 1 };
+
+        for (key in xSlot) {
+          if (xSlot.hasOwnProperty(key) && xSlot[key] && ! skip[key]) {
+              url.push(key, '=', xSlot[key], '&');
+          }
+        }
+
+        return encodeURIComponent(base64(url.join('').slice(0, -1)));
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -82,7 +157,6 @@ function AdformHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -144,9 +218,36 @@ function AdformHtb(configs) {
         var queryObj = {};
         var callbackId = System.generateUniqueId();
 
-        /* Change this to your bidder endpoint.*/
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var request = [], item, _key, _value, i, j, k;
 
+        var globalParams = [ [ 'adxDomain', 'adx.adform.net' ], [ 'fd', 1 ], [ 'url', null ], [ 'tid', null ] ];
+        for (i in returnParcels) {
+
+            item = returnParcels[i].xSlotRef;
+            for (j = 0, k = globalParams.length; j < k; j++) {
+                _key = globalParams[j][0];
+                _value = item[_key];
+                if (_value) {
+                  item[_key] = null;
+                  globalParams[j][1] = _value;
+                }
+            }
+
+            request.push(getRequestItem(item));
+        }
+
+        request.unshift(Browser.getProtocol() + '//' + globalParams[0][1] + '/adx/?rp=4');
+
+        for (i = 1, k = globalParams.length; i < k; i++) {
+              _key = globalParams[i][0];
+              _value = globalParams[i][1];
+              if (_value) {
+                request.push(_key + '=' + encodeURIComponent(_value));
+              }
+        }
+
+        /* Change this to your bidder endpoint.*/
+        var baseUrl = request.join('&');
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
 
@@ -249,33 +350,7 @@ function AdformHtb(configs) {
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
-            var curBid;
-
-            for (var i = 0; i < bids.length; i++) {
-
-                /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
-
-                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
-                    curBid = bids[i];
-                    bids.splice(i, 1);
-                    break;
-                }
-            }
-
-            /* No matching bid found so its a pass */
-            if (!curBid) {
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-                continue;
-            }
+            var curBid = adResponse[j];
 
             /* ---------- Fill the bid variables with data from the bid response here. ------------*/
 
@@ -283,7 +358,7 @@ function AdformHtb(configs) {
              * these local variables */
 
             /* the bid price for the given slot */
-            var bidPrice = curBid.price;
+            var bidPrice = curBid.win_bid;
 
             /* the size of the given slot */
             var bidSize = [Number(curBid.width), Number(curBid.height)];
@@ -291,13 +366,19 @@ function AdformHtb(configs) {
             /* the creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
+            var bidCreative = curBid.banner;
 
             /* the dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId = curBid.deal_id;
+
 
             /* explicitly pass */
-            var bidIsPass = bidPrice <= 0 ? true : false;
+            var bidIsPass;
+            if (bidDealId) {
+                bidIsPass = false;
+            } else {
+                bidIsPass = ( ! bidPrice || bidPrice <= 0 || curBid.response !== 'banner') ? true : false;
+            }
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -309,7 +390,7 @@ function AdformHtb(configs) {
 
             if (bidIsPass) {
                 //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + curReturnParcel.xSlotRef.mid + ' }.');
                 //? }
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
@@ -409,10 +490,10 @@ function AdformHtb(configs) {
                 pm: 'ix_adfrm_cpm',
                 pmid: 'ix_adfrm_dealid'
             },
-            bidUnitInCents: 1, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
+            callbackType: Partner.CallbackTypes.CALLBACK_NAME, // Callback type, please refer to the readme for details
+            architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
             requestType: Partner.RequestTypes.ANY // Request type, jsonp, ajax, or any.
         };
         /* ---------------------------------------------------------------------------------------*/
