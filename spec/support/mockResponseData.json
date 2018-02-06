@@ -1,5 +1,5 @@
 {
-    "bids": [ { "response": "banner", "win_bid": 0.1, "banner": "<banner1>" }, { "response": "banner", "win_bid": 1, "banner": "<banner2>" }, { "response": "banner", "win_bid": 1, "banner": "<banner3>" } ],
+    "bids": [ { "response": "banner", "win_bid": 0.1, "banner": "<banner1>", "width": 100, "height": 200 }, { "response": "banner", "win_bid": 1, "banner": "<banner2>" }, { "response": "banner", "win_bid": 1, "banner": "<banner3>" } ],
     "pass": [ {}, { "response": "ad" }, { "response": "banner", "win_bid": 0 } ],
     "deals": [ { "response": "banner", "win_bid": 0.1, "banner": "<banner1>", "deal_id": "a" }, { "response": "banner", "win_bid": 1, "banner": "<banner2>", "deal_id": "b" }, { "response": "banner", "win_bid": 1, "banner": "<banner3>", "deal_id": "c" } ],
     "dealid": [ { "response": "banner", "banner": "<banner1>", "deal_id": "a" }, { "response": "banner", "banner": "<banner2>", "deal_id": "b" }, { "response": "banner", "banner": "<banner3>", "deal_id": "c" } ]

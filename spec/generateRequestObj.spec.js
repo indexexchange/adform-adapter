@@ -122,6 +122,10 @@ describe('generateRequestObj', function () {
                 */
             expect(requestObject).to.exist;
         });
+
+        it('should correctly build a url base', function () {
+            expect(requestObject.url).to.be.equal('http://adx.adform.net/adx/?rp=4&bWlkPTU0MzIx&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTY1NDMyMQ&fd=1&tid=someID');
+        });
         /* -----------------------------------------------------------------------*/
 
     /* ---------- IF MRA, generate a single request for each parcel ---------- */

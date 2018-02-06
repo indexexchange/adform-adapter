@@ -200,7 +200,19 @@ describe('parseResponse', function () {
                  */
 
                 expect(returnParcels[i]).to.exist;
+                expect(returnParcels[i].adm).to.be.equal('<banner' + (i + 1) +'>');
+
             }
+        });
+
+        it('should set correct size', function () {
+            partnerModule.parseResponse(1, mockData, returnParcels);
+            expect(returnParcels[0].size).to.deep.equal([ 100, 200 ]);
+        });
+
+        it('should set correct price', function () {
+            partnerModule.parseResponse(1, mockData, returnParcels);
+            expect(returnParcels.map(function(a){return a.price;})).to.deep.equal([0.1, 1, 1]);
         });
 
         it('registerAd should be called with correct adEntry', function () {
