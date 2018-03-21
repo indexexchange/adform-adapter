@@ -37,6 +37,9 @@ var partnerValidator = function (configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            url: { type: 'string', optional: true },
+            tid: { type: 'integer', optional: true },
+            adxDomain: { type: 'string', optional: true },
             xSlots: {
                 type: 'object',
                 properties: {
@@ -46,6 +49,14 @@ var partnerValidator = function (configs) {
                             mid: {
                                 type: 'integer',
                                 minLength: 1
+                            },
+                            mkw: {
+                                type: 'string',
+                                optional: true
+                            },
+                            mkv: {
+                                type: 'string',
+                                optional: true
                             }
                         }
                     }

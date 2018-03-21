@@ -124,7 +124,7 @@ describe('generateRequestObj', function () {
         });
 
         it('should correctly build a url base', function () {
-            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=someID&url=http%3A%2F%2Fadform.com&bWlkPTU0MzIx&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTY1NDMyMQ');
+            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=1&url=http%3A%2F%2Fadform.com&bWlkPTU0MzIx&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTY1NDMyMQ');
         });
         /* -----------------------------------------------------------------------*/
 
