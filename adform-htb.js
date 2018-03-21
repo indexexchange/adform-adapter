@@ -148,6 +148,15 @@ function AdformHtb(configs) {
         return encodeURIComponent(base64(url.join('').slice(0, -1)));
     }
 
+    function getQueryValue(key, value) {
+        var result = '';
+        if (key && value) {
+            result += "&" + key + '=' + encodeURIComponent(value);
+        }
+
+        return result;
+    }
+
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
@@ -218,33 +227,13 @@ function AdformHtb(configs) {
         var queryObj = {};
         var callbackId = System.generateUniqueId();
 
-        var request = [], item, _key, _value, i, j, k;
+        var request = [];
 
-        var globalParams = [ [ 'adxDomain', 'adx.adform.net' ], [ 'fd', 1 ], [ 'url', null ], [ 'tid', null ] ];
-        for (i in returnParcels) {
-
-            item = returnParcels[i].xSlotRef;
-            for (j = 0, k = globalParams.length; j < k; j++) {
-                _key = globalParams[j][0];
-                _value = item[_key];
-                if (_value) {
-                  item[_key] = null;
-                  globalParams[j][1] = _value;
-                }
-            }
-
-            request.push(getRequestItem(item));
+        for (var i in returnParcels) {
+            request.push(getRequestItem(returnParcels[i].xSlotRef));
         }
 
-        request.unshift(Browser.getProtocol() + '//' + globalParams[0][1] + '/adx/?rp=4');
-
-        for (i = 1, k = globalParams.length; i < k; i++) {
-              _key = globalParams[i][0];
-              _value = globalParams[i][1];
-              if (_value) {
-                request.push(_key + '=' + encodeURIComponent(_value));
-              }
-        }
+        request.unshift(Browser.getProtocol() + '//' + (configs.adxDomain || 'adx.adform.net') + '/adx/?rp=4&fd=1' + getQueryValue('tid', configs.tid) + getQueryValue('url', configs.url));
 
         /* Change this to your bidder endpoint.*/
         var baseUrl = request.join('&');
