@@ -73,66 +73,6 @@ function AdformHtb(configs) {
 
     /* Utilities
      * ---------------------------------- */
-    function base64(_string) {
-        var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_='.split('');
-        return encode64(_string);
-
-        function encode64(input) {
-            var out = [];
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-
-            input = utf8_encode(input);
-
-            while (i < input.length) {
-
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-
-                enc1 = chr1 >> 2;
-                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-                enc4 = chr3 & 63;
-
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-                out.push(_keyStr[enc1], _keyStr[enc2]);
-                if (enc3 != 64)
-                    out.push(_keyStr[enc3]);
-                if (enc4 != 64)
-                    out.push(_keyStr[enc4]);
-            }
-
-            return out.join('');
-        }
-
-        function utf8_encode(string) {
-            string = string.replace(/\r\n/g, "\n");
-            var utftext = "";
-
-            for (var n = 0; n < string.length; n++) {
-
-                var c = string.charCodeAt(n);
-
-                if (c < 128) {
-                    utftext += String.fromCharCode(c);
-                } else if ((c > 127) && (c < 2048)) {
-                    utftext += String.fromCharCode((c >> 6) | 192);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                } else {
-                    utftext += String.fromCharCode((c >> 12) | 224);
-                    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                }
-            }
-
-            return utftext;
-        }
-    }
 
     function getRequestItem(xSlot) {
         var key;
@@ -145,7 +85,7 @@ function AdformHtb(configs) {
           }
         }
 
-        return encodeURIComponent(base64(url.join('').slice(0, -1)));
+        return encodeURIComponent(btoa(url.join('').slice(0, -1)));
     }
 
     function getQueryValue(key, value) {
@@ -340,6 +280,14 @@ function AdformHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid = adResponse[j];
+            /* No matching bid found so its a pass */
+            if (curBid.response !== 'banner') {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+                continue;
+            }
 
             /* ---------- Fill the bid variables with data from the bid response here. ------------*/
 
@@ -366,7 +314,7 @@ function AdformHtb(configs) {
             if (bidDealId) {
                 bidIsPass = false;
             } else {
-                bidIsPass = ( ! bidPrice || bidPrice <= 0 || curBid.response !== 'banner') ? true : false;
+                bidIsPass = ( ! bidPrice || bidPrice <= 0) ? true : false;
             }
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
@@ -481,9 +429,9 @@ function AdformHtb(configs) {
             },
             bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.CALLBACK_NAME, // Callback type, please refer to the readme for details
+            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
             architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.ANY // Request type, jsonp, ajax, or any.
+            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
         };
         /* ---------------------------------------------------------------------------------------*/
 

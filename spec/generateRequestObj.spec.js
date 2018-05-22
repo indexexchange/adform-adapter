@@ -62,6 +62,7 @@ describe('generateRequestObj', function () {
     /* Setup and Library Stub
      * ------------------------------------------------------------- */
     var inspector = require('schema-inspector');
+    global.btoa = string => Buffer.from(string).toString('base64')
     var proxyquire = require('proxyquire').noCallThru();
     var libraryStubData = require('./support/libraryStubData.js');
     var partnerModule = proxyquire('../adform-htb.js', libraryStubData);
@@ -124,7 +125,7 @@ describe('generateRequestObj', function () {
         });
 
         it('should correctly build a url base', function () {
-            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=1&url=http%3A%2F%2Fadform.com&bWlkPTMyMDczNw&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTY1NDMyMQ');
+            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=1&url=http%3A%2F%2Fadform.com&bWlkPTMyMDczNw%3D%3D&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTY1NDMyMQ%3D%3D');
         });
         /* -----------------------------------------------------------------------*/
 
