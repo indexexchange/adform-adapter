@@ -125,7 +125,7 @@ describe('generateRequestObj', function () {
         });
 
         it('should correctly build a url base', function () {
-            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=1&url=http%3A%2F%2Fadform.com&bWlkPTMyMDczNg%3D%3D&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTMyMDczNw%3D%3D');
+            expect(requestObject.url).to.be.equal('http://adx2.adform.net/adx/?rp=4&fd=1&tid=1&url=http%3A%2F%2Fadform.com&bWlkPTMyMDczNg%3D%3D&bWlkPTEyMzQ1Jm1rdz1rZXl3b3Jk&bWlkPTMyMDczNw%3D%3D&gdpr=0&gdpr_consent=BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA');
         });
         /* -----------------------------------------------------------------------*/
 

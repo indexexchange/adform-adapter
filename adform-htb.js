@@ -28,6 +28,7 @@ var Network = require('network.js');
 var Utilities = require('utilities.js');
 var EventsService;
 var RenderService;
+var ComplianceService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
@@ -174,6 +175,28 @@ function AdformHtb(configs) {
         }
 
         request.unshift(Browser.getProtocol() + '//' + (configs.adxDomain || 'adx.adform.net') + '/adx/?rp=4&fd=1' + getQueryValue('tid', configs.tid) + getQueryValue('url', configs.url));
+
+       /* ------------------------ Get consent information -------------------------
+        * If you want to implement GDPR consent in your adapter, use the function
+        * ComplianceService.gdpr.getConsent() which will return an object.
+        *
+        * Here is what the values in that object mean:
+        *      - applies: the boolean value indicating if the request is subject to
+        *      GDPR regulations
+        *      - consentString: the consent string developed by GDPR Consent Working
+        *      Group under the auspices of IAB Europe
+        *
+        * The return object should look something like this:
+        * {
+        *      applies: true,
+        *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
+        * }
+        */
+       var isPrivacyEnabled = ComplianceService.isPrivacyEnabled(), gdprStatus;
+       if (isPrivacyEnabled) {
+           gdprStatus = ComplianceService.gdpr.getConsent();
+           request.push('gdpr=' + (gdprStatus.applies ? 1 : 0), 'gdpr_consent=' + gdprStatus.consentString);
+       }
 
         /* Change this to your bidder endpoint.*/
         var baseUrl = request.join('&');
@@ -393,6 +416,7 @@ function AdformHtb(configs) {
     (function __constructor() {
         EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
+        ComplianceService = SpaceCamp.services.ComplianceService;
 
         /* =============================================================================
          * STEP 1  | Partner Configuration
