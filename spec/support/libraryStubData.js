@@ -112,6 +112,21 @@ var libraryStubData = {
                 registerAd: function () {
                     return '_' + Math.random().toString(36).substr(2, 9);
                 }
+            },
+            ComplianceService: {
+                gdpr: {
+                    getConsent: function() {
+                        return {
+                            applies: false,
+                            consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
+                        };
+                    }
+                },
+                isPrivacyEnabled: function() {
+                        //if true, publisher has enabled gdpr, so rely on the values sent by getConsent
+                        //if false, publisher has not enabled gdpr, so do not pass the consent values.
+                        return true;
+                }
             }
         },
     },
