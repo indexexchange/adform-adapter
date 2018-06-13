@@ -1,6 +1,6 @@
 {
     "timeout": 1000,
-    "adxDomain": "adx2.adform.net",
+    "adxDomain": "adx.adform.net",
     "tid": 1,
     "url": "http://adform.com",
     "xSlots": {
@@ -11,7 +11,7 @@
             ]
         },
         "2": {
-            "mid": 521604,
+            "mid": 574037,
             "mkw": "keyword",
             "sizes": [
                 [970, 250]
