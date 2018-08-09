@@ -174,7 +174,7 @@ function AdformHtb(configs) {
             request.push(getRequestItem(returnParcels[i].xSlotRef));
         }
 
-        request.unshift(Browser.getProtocol() + '//' + (configs.adxDomain || 'adx.adform.net') + '/adx/?rp=4&fd=1' + getQueryValue('tid', configs.tid) + getQueryValue('url', configs.url));
+        request.unshift(Browser.getProtocol() + '//' + (configs.adxDomain || 'adx.adform.net') + '/adx/?rp=4&fd=1&pt=net' + getQueryValue('tid', configs.tid) + getQueryValue('url', configs.url));
 
        /* ------------------------ Get consent information -------------------------
         * If you want to implement GDPR consent in your adapter, use the function
